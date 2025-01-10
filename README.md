@@ -1,4 +1,28 @@
-# HashPass
+<p align="center">
+  <img src="assets/hashpass.png" alt="HashPass Logo" width="300">
+</p>
+
+<p align="center">
+  <b>HashPass</b><br>
+  A secure, local password manager in a single HTML file.<br>
+  Encrypts passwords with AES-GCM. No servers, no cloud—100% browser-based.
+</p>
+
+<p align="center">
+  <a href="https://github.com/EvanParden/HashPass/stargazers"><img src="https://img.shields.io/github/stars/EvanParden/HashPass?style=social"></a>
+  <a href="https://github.com/EvanParden/HashPass/issues"><img src="https://img.shields.io/github/issues/EvanParden/HashPass"></a>
+  <a href="https://github.com/EvanParden/HashPass/network"><img src="https://img.shields.io/github/forks/EvanParden/HashPass?style=social"></a>
+</p>
+
+## About
+
+**HashPass** is a simple, lightweight password manager that works entirely in your browser. Just open the single HTML file, and you're ready to manage your passwords securely.
+
+- **Encryption**: Uses AES-GCM with PBKDF2 for password-based encryption.
+- **Local Only**: No servers, no cloud—everything stays on your device.
+- **Cross-Platform**: Works on any browser, no installation needed.
+
+---
 
 **HashPass** is a simple, local password management tool that uses your browser's Web Crypto API to encrypt (or store in plain text if you prefer) your credentials. Everything runs locally, so no data ever leaves your machine.
 
