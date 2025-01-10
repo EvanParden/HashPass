@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MVP Password Manager</title>
+  <title>HashPass</title>
 <style>*, ::before, ::after {
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;
@@ -621,6 +621,14 @@ video {
   margin-bottom: 0.25rem;
 }
 
+.mb-12 {
+  margin-bottom: 3rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
 .mb-3 {
   margin-bottom: 0.75rem;
 }
@@ -637,12 +645,12 @@ video {
   margin-top: 0.25rem;
 }
 
-.mt-2 {
-  margin-top: 0.5rem;
+.mt-12 {
+  margin-top: 3rem;
 }
 
-.mt-6 {
-  margin-top: 1.5rem;
+.mt-2 {
+  margin-top: 0.5rem;
 }
 
 .block {
@@ -651,10 +659,6 @@ video {
 
 .flex {
   display: flex;
-}
-
-.table {
-  display: table;
 }
 
 .hidden {
@@ -681,12 +685,24 @@ video {
   width: 100%;
 }
 
+.max-w-3xl {
+  max-width: 48rem;
+}
+
 .max-w-xl {
   max-width: 36rem;
 }
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.list-inside {
+  list-style-position: inside;
+}
+
+.list-decimal {
+  list-style-type: decimal;
 }
 
 .flex-col {
@@ -713,6 +729,10 @@ video {
   --tw-space-y-reverse: 0;
   margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
+}
+
+.self-center {
+  align-self: center;
 }
 
 .whitespace-pre-wrap {
@@ -830,6 +850,11 @@ video {
   text-align: center;
 }
 
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
 .text-3xl {
   font-size: 1.875rem;
   line-height: 2.25rem;
@@ -891,6 +916,10 @@ video {
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+}
+
+.underline {
+  text-decoration-line: underline;
 }
 
 .shadow {
@@ -965,6 +994,11 @@ video {
   background-color: rgb(67 56 202 / var(--tw-bg-opacity, 1));
 }
 
+.hover\:text-blue-800:hover {
+  --tw-text-opacity: 1;
+  color: rgb(30 64 175 / var(--tw-text-opacity, 1));
+}
+
 .hover\:text-gray-700:hover {
   --tw-text-opacity: 1;
   color: rgb(55 65 81 / var(--tw-text-opacity, 1));
@@ -977,78 +1011,95 @@ video {
 </style>
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col items-center p-6">
-  <h1 class="text-3xl font-bold mb-6">MVP Password Manager</h1>
+  <!-- Top Nav: includes "Help" link -->
+  <div class="w-full flex justify-between mb-6">
+    <h1 class="text-3xl font-bold">HashPass</h1>
+    <a
+      href="#instructions"
+      class="text-blue-600 underline self-center hover:text-blue-800"
+    >
+      Help
+    </a>
+  </div>
 
-  <!-- File load & green check row -->
-  <div class="flex items-center gap-3 mb-6">
-    <div>
+  <!-- File load & valid check row -->
+  <div class="flex flex-col items-center gap-3 mb-6">
+    <div class="flex items-center gap-3">
       <input
         id="jsonFileInput"
         type="file"
         accept=".json"
-        class="block file:mr-2 file:py-2 file:px-4 file:rounded file:border-0
+        class="file:mr-2 file:py-2 file:px-4 file:rounded file:border-0
                file:text-sm file:font-semibold
                file:bg-blue-50 file:text-blue-700
                hover:file:bg-blue-100
                border border-gray-300 rounded p-1"
       />
-    </div>
-    <!-- Green check icon is hidden by default, shown if format is valid -->
-    <svg
-      id="validIcon"
-      class="hidden w-6 h-6 text-green-500"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      viewBox="0 0 24 24"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    >
-      <path d="M5 13l4 4L19 7" />
-    </svg>
+      <!-- Green check icon hidden by default, shown if format is valid -->
+      <svg
+        id="validIcon"
+        class="hidden w-6 h-6 text-green-500"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M5 13l4 4L19 7" />
+      </svg>
 
-    <button
-      id="loadJsonBtn"
-      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-      Load JSON
-    </button>
+      <button
+        id="loadJsonBtn"
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        Load JSON
+      </button>
+    </div>
+
+    <!-- Display loaded metadata if any -->
+    <div id="metadataDisplay" class="text-sm text-gray-700 hidden">
+      <p><strong>Algorithm:</strong> <span id="algoLabel"></span></p>
+      <p><strong>Security Level:</strong> <span id="secLevelLabel"></span></p>
+    </div>
   </div>
 
   <!-- Create new storage button (opens a modal) -->
   <div class="mb-4">
     <button
       id="openCreateModalBtn"
-      class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+      class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+    >
       Create New Storage
     </button>
   </div>
 
   <!-- Password List Container -->
-  <div class="w-full max-w-xl bg-white rounded shadow p-4">
-    <!-- The "Add Entry" button at the top, triggers the Add Entry modal -->
+  <div class="w-full max-w-xl bg-white rounded shadow p-4 mb-6">
     <div class="mb-4 flex justify-between items-center">
       <h2 class="text-xl font-semibold">Stored Entries</h2>
+      <!-- "Add Entry" button at the top, triggers the Add Entry modal -->
       <button
         id="openAddEntryBtn"
-        class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm">
+        class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
+      >
         + Add Entry
       </button>
     </div>
 
-    <!-- Minimalistic list, no big table -->
+    <!-- Minimalistic list -->
     <div id="entriesContainer" class="space-y-3">
-      <!-- Dynamically populated cards or list rows -->
+      <!-- Dynamically populated -->
     </div>
   </div>
 
   <!-- Save & Download button -->
-  <div class="mt-6">
-    <button
-      id="downloadJsonBtn"
-      class="bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700">
-      Save & Download
-    </button>
-  </div>
+  <button
+    id="saveJsonBtn"
+    class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 mb-12"
+  >
+    Save & Download
+  </button>
 
   <!-- ===== Modals ===== -->
 
@@ -1071,6 +1122,28 @@ video {
         placeholder="Leave blank for no encryption"
         class="border border-gray-300 rounded p-2 w-full mb-3"
       />
+
+      <!-- Encryption metadata -->
+      <label class="block mb-1 font-semibold">Algorithm:</label>
+      <select
+        id="algorithmSelect"
+        class="border border-gray-300 rounded p-2 w-full mb-3"
+      >
+        <option value="AES-GCM" selected>AES-GCM</option>
+        <option value="AES-CBC">AES-CBC</option>
+        <option value="AES-CTR">AES-CTR</option>
+        <option value="ChaCha20">ChaCha20</option>
+      </select>
+
+      <label class="block mb-1 font-semibold">Security Level:</label>
+      <select
+        id="securityLevelSelect"
+        class="border border-gray-300 rounded p-2 w-full mb-4"
+      >
+        <option value="256-bit" selected>256-bit</option>
+        <option value="192-bit">192-bit</option>
+        <option value="128-bit">128-bit</option>
+      </select>
 
       <button
         id="createStorageBtn"
@@ -1134,7 +1207,7 @@ video {
     </div>
   </div>
 
-  <!-- 3) Detail/Notes Modal (optional) -->
+  <!-- 3) Detail Modal -->
   <div
     id="detailModal"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden"
@@ -1152,7 +1225,30 @@ video {
       <p id="detailNotes" class="whitespace-pre-wrap border rounded p-2 mt-1 bg-gray-50"></p>
     </div>
   </div>
-<script>"use strict";(()=>{var w=document.getElementById("jsonFileInput"),L=document.getElementById("validIcon"),H=document.getElementById("loadJsonBtn"),A=document.getElementById("openCreateModalBtn"),g=document.getElementById("createStorageModal"),N=document.getElementById("closeCreateModalBtn"),M=document.getElementById("createMasterPasswordInput"),P=document.getElementById("createStorageBtn"),p=document.getElementById("entriesContainer"),k=document.getElementById("openAddEntryBtn"),f=document.getElementById("addEntryModal"),U=document.getElementById("closeAddEntryModalBtn"),I=document.getElementById("websiteInput"),h=document.getElementById("usernameInput"),b=document.getElementById("passwordInput"),x=document.getElementById("noteInput"),D=document.getElementById("submitNewEntryBtn"),C=document.getElementById("detailModal"),J=document.getElementById("closeDetailModalBtn"),O=document.getElementById("detailWebsite"),j=document.getElementById("detailUsername"),F=document.getElementById("detailPassword"),K=document.getElementById("detailNotes"),R=document.getElementById("downloadJsonBtn"),c=[],B="",o=null,d=null;function m(e){let n=window.atob(e),t=n.length,a=new Uint8Array(t);for(let s=0;s<t;s++)a[s]=n.charCodeAt(s);return a.buffer}function E(e){let n=new Uint8Array(e),t="";for(let a=0;a<n.byteLength;a++)t+=String.fromCharCode(n[a]);return window.btoa(t)}async function S(e,n){let t=new TextEncoder,a=await window.crypto.subtle.importKey("raw",t.encode(e),{name:"PBKDF2"},!1,["deriveKey"]);return window.crypto.subtle.deriveKey({name:"PBKDF2",salt:n,iterations:1e5,hash:"SHA-256"},a,{name:"AES-GCM",length:256},!1,["encrypt","decrypt"])}async function G(e,n){o||(o=window.crypto.getRandomValues(new Uint8Array(16))),d||(d=window.crypto.getRandomValues(new Uint8Array(12)));let t=await S(e,o),a=new TextEncoder,s=await window.crypto.subtle.encrypt({name:"AES-GCM",iv:d},t,a.encode(n));return{iv:E(d.buffer),salt:E(o.buffer),data:E(s)}}async function V(e,n){let t=new Uint8Array(m(n.iv)),a=new Uint8Array(m(n.salt)),s=m(n.data),i=await S(e,a),l=await window.crypto.subtle.decrypt({name:"AES-GCM",iv:t},i,s);return new TextDecoder().decode(l)}async function W(e,n){let t=JSON.stringify(n);if(!e)return JSON.stringify({iv:"",salt:"",data:t},null,2);let a=await G(e,t);return JSON.stringify(a,null,2)}async function q(e,n){let t=JSON.parse(n);if(!t.iv&&!t.salt)return JSON.parse(t.data);{let a=await V(e,t);return JSON.parse(a)}}function v(){if(p.innerHTML="",c.length===0){let e=document.createElement("div");e.className="text-gray-500 text-center p-4",e.textContent="No entries yet",p.appendChild(e);return}c.forEach((e,n)=>{let t=document.createElement("div");t.className="p-3 border rounded flex items-center justify-between hover:bg-gray-50";let a=document.createElement("div");a.className="flex flex-col";let s=document.createElement("span");s.className="font-semibold text-gray-700",s.textContent=e.website;let i=document.createElement("span");i.className="text-gray-600 text-sm",i.textContent=e.username||"(no username)",a.appendChild(s),a.appendChild(i);let l=document.createElement("div");l.className="flex items-center gap-3";let r=document.createElement("span");r.className="bg-gray-200 text-sm px-2 py-1 rounded cursor-pointer",r.textContent="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";let y=!1;r.addEventListener("click",()=>{y?r.textContent="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022":r.textContent=e.password||"",y=!y});let u=document.createElement("button");u.className="text-xs bg-gray-300 px-2 py-1 rounded hover:bg-gray-400",u.textContent="Details",u.addEventListener("click",T=>{T.stopPropagation(),z(e)}),l.appendChild(r),l.appendChild(u),t.appendChild(a),t.appendChild(l),p.appendChild(t)})}function z(e){O.textContent=e.website,j.textContent=e.username,F.textContent=e.password,K.textContent=e.note,C.classList.remove("hidden")}function Q(){C.classList.add("hidden")}w.addEventListener("change",async()=>{L?.classList.add("hidden");let e=w.files?.[0];if(e)try{let n=await e.text();JSON.parse(n),L?.classList.remove("hidden")}catch(n){console.warn("Invalid JSON format",n)}});H.addEventListener("click",async()=>{let e=w.files?.[0];if(!e){alert("No file selected");return}try{let n=await e.text(),t=prompt("Enter master password if any (or leave blank):")||"";B=t;let a=await q(t,n),s=JSON.parse(n);s.iv&&s.salt?(o=new Uint8Array(m(s.salt)),d=new Uint8Array(m(s.iv))):(o=null,d=null),c=a,v(),alert("File loaded successfully")}catch(n){console.error(n),alert("Failed to load/decrypt file. Check console for details.")}});A.addEventListener("click",()=>{g.classList.remove("hidden")});N.addEventListener("click",()=>{g.classList.add("hidden")});P.addEventListener("click",()=>{B=M.value||"",c=[],o=null,d=null,v(),g.classList.add("hidden"),M.value="",alert("New storage created!")});k.addEventListener("click",()=>{f.classList.remove("hidden")});U.addEventListener("click",()=>{f.classList.add("hidden")});D.addEventListener("click",()=>{let e={website:I.value.trim(),username:h.value.trim(),password:b.value.trim(),note:x.value.trim()};c.push(e),I.value="",h.value="",b.value="",x.value="",f.classList.add("hidden"),v()});J.addEventListener("click",()=>{Q()});R.addEventListener("click",async()=>{try{let e=await W(B,c),n=new Blob([e],{type:"application/json"}),t=URL.createObjectURL(n),a=document.createElement("a");a.href=t,a.download="passwords.json",a.click(),URL.revokeObjectURL(t)}catch(e){console.error(e),alert("Failed to save. Check console.")}});})();
+
+  <!-- ===== Instructions Section ===== -->
+  <div id="instructions" class="w-full max-w-3xl mt-12 bg-white rounded shadow p-6">
+    <h2 class="text-2xl font-bold mb-3">How to Use HashPass</h2>
+    <ol class="list-decimal list-inside mb-4 text-gray-700">
+      <li class="mb-2"><strong>Load or Create Storage:</strong> Select an existing JSON file (if you have one) or create a new storage by clicking <em>Create New Storage</em>.</li>
+      <li class="mb-2"><strong>Set Optional Password:</strong> If you set a master password, your data is encrypted. Otherwise, it’s stored in plain text.</li>
+      <li class="mb-2"><strong>Add Entries:</strong> Click <em>+ Add Entry</em> to insert new credentials (website, username, password, etc.).</li>
+      <li class="mb-2"><strong>Reveal Password:</strong> Click on the masked password (“••••••••”) to show/hide it.</li>
+      <li class="mb-2"><strong>Save &amp; Download:</strong> When ready, click <em>Save &amp; Download</em> to export the current data to a JSON file.</li>
+    </ol>
+
+    <h3 class="text-xl font-bold mb-2">How It Works & Why It’s Secure</h3>
+    <p class="mb-4 text-gray-700">
+      HashPass uses the Web Crypto API to encrypt your data (if you provide a master password).
+      By default, it uses a strong PBKDF2 key derivation and AES-GCM encryption. The JSON file
+      that’s generated can only be decrypted with your chosen password. If no password is set,
+      the file remains unencrypted.
+    </p>
+    <p class="mb-4 text-gray-700">
+      Your data stays local: everything runs in your browser. No cloud or server involvement.
+    </p>
+  </div>
+<script>"use strict";(()=>{var w=document.getElementById("jsonFileInput"),B=document.getElementById("validIcon"),A=document.getElementById("loadJsonBtn"),S=document.getElementById("metadataDisplay"),D=document.getElementById("algoLabel"),N=document.getElementById("secLevelLabel"),P=document.getElementById("openCreateModalBtn"),v=document.getElementById("createStorageModal"),k=document.getElementById("closeCreateModalBtn"),M=document.getElementById("createMasterPasswordInput"),U=document.getElementById("algorithmSelect"),J=document.getElementById("securityLevelSelect"),O=document.getElementById("createStorageBtn"),E=document.getElementById("entriesContainer"),F=document.getElementById("openAddEntryBtn"),L=document.getElementById("addEntryModal"),j=document.getElementById("closeAddEntryModalBtn"),h=document.getElementById("websiteInput"),I=document.getElementById("usernameInput"),b=document.getElementById("passwordInput"),C=document.getElementById("noteInput"),K=document.getElementById("submitNewEntryBtn"),x=document.getElementById("detailModal"),G=document.getElementById("closeDetailModalBtn"),R=document.getElementById("detailWebsite"),V=document.getElementById("detailUsername"),W=document.getElementById("detailPassword"),q=document.getElementById("detailNotes"),z=document.getElementById("saveJsonBtn"),y="",l=null,d=null,o={metadata:{algorithm:"AES-GCM",securityLevel:"256-bit"},entries:[]};function m(t){let e=window.atob(t),n=e.length,a=new Uint8Array(n);for(let s=0;s<n;s++)a[s]=e.charCodeAt(s);return a.buffer}function g(t){let e=new Uint8Array(t),n="";for(let a=0;a<e.byteLength;a++)n+=String.fromCharCode(e[a]);return window.btoa(n)}async function T(t,e){let n=new TextEncoder,a=await window.crypto.subtle.importKey("raw",n.encode(t),{name:"PBKDF2"},!1,["deriveKey"]);return window.crypto.subtle.deriveKey({name:"PBKDF2",salt:e,iterations:1e5,hash:"SHA-256"},a,{name:"AES-GCM",length:256},!1,["encrypt","decrypt"])}async function Q(t,e){l||(l=window.crypto.getRandomValues(new Uint8Array(16))),d||(d=window.crypto.getRandomValues(new Uint8Array(12)));let n=await T(t,l),a=new TextEncoder,s=await window.crypto.subtle.encrypt({name:"AES-GCM",iv:d},n,a.encode(e));return{iv:g(d.buffer),salt:g(l.buffer),data:g(s)}}async function X(t,e){let n=new Uint8Array(m(e.iv)),a=new Uint8Array(m(e.salt)),s=m(e.data),i=await T(t,a),c=await window.crypto.subtle.decrypt({name:"AES-GCM",iv:n},i,s);return new TextDecoder().decode(c)}async function Y(){if(y){let t=JSON.stringify(o),e=await Q(y,t);return JSON.stringify(e,null,2)}else return JSON.stringify({iv:"",salt:"",data:JSON.stringify(o)},null,2)}async function Z(t,e){let n=JSON.parse(t);if(!n.iv&&!n.salt)return JSON.parse(n.data);let a=await X(e,n);return JSON.parse(a)}function f(){E.innerHTML="";let t=o.entries;if(!t||t.length===0){let e=document.createElement("div");e.className="text-gray-500 text-center p-4",e.textContent="No entries yet",E.appendChild(e);return}t.forEach(e=>{let n=document.createElement("div");n.className="p-3 border rounded flex items-center justify-between hover:bg-gray-50";let a=document.createElement("div");a.className="flex flex-col";let s=document.createElement("span");s.className="font-semibold text-gray-700",s.textContent=e.website;let i=document.createElement("span");i.className="text-gray-600 text-sm",i.textContent=e.username||"(no username)",a.appendChild(s),a.appendChild(i);let c=document.createElement("div");c.className="flex items-center gap-3";let r=document.createElement("span");r.className="bg-gray-200 text-sm px-2 py-1 rounded cursor-pointer",r.textContent="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";let p=!1;r.addEventListener("click",()=>{p?r.textContent="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022":r.textContent=e.password||"",p=!p});let u=document.createElement("button");u.className="text-xs bg-gray-300 px-2 py-1 rounded hover:bg-gray-400",u.textContent="Details",u.addEventListener("click",H=>{H.stopPropagation(),_(e)}),c.appendChild(r),c.appendChild(u),n.appendChild(a),n.appendChild(c),E.appendChild(n)})}function _(t){R.textContent=t.website,V.textContent=t.username,W.textContent=t.password,q.textContent=t.note,x.classList.remove("hidden")}function $(){x.classList.add("hidden")}function ee(t){let e=new Blob([t],{type:"application/json"}),n=URL.createObjectURL(e),a=document.createElement("a");a.href=n,a.download="passwords.json",a.click(),URL.revokeObjectURL(n)}w.addEventListener("change",async()=>{B?.classList.add("hidden"),S.classList.add("hidden");let t=w.files?.[0];if(t)try{let e=await t.text();JSON.parse(e),B?.classList.remove("hidden")}catch(e){console.warn("Invalid JSON format",e)}});A.addEventListener("click",async()=>{let t=w.files?.[0];if(!t){alert("No file selected");return}try{let e=await t.text(),n=prompt("Enter master password if any (or leave blank):")||"";y=n;let a=await Z(e,n),s=JSON.parse(e);s.iv&&s.salt?(l=new Uint8Array(m(s.salt)),d=new Uint8Array(m(s.iv))):(l=null,d=null),o=a,o.metadata||(o.metadata={algorithm:"AES-GCM",securityLevel:"256-bit"}),D.textContent=o.metadata.algorithm,N.textContent=o.metadata.securityLevel,S.classList.remove("hidden"),f(),alert("File loaded successfully")}catch(e){console.error(e),alert("Failed to load/decrypt file. Check console for details.")}});P.addEventListener("click",()=>{v.classList.remove("hidden")});k.addEventListener("click",()=>{v.classList.add("hidden")});O.addEventListener("click",()=>{y=M.value||"",o.metadata.algorithm=U.value,o.metadata.securityLevel=J.value,o.entries=[],l=null,d=null,f(),v.classList.add("hidden"),M.value="",alert("New storage created! Use 'Save & Download' to export.")});F.addEventListener("click",()=>{L.classList.remove("hidden")});j.addEventListener("click",()=>{L.classList.add("hidden")});K.addEventListener("click",()=>{let t={website:h.value.trim(),username:I.value.trim(),password:b.value.trim(),note:C.value.trim()};o.entries.push(t),h.value="",I.value="",b.value="",C.value="",L.classList.add("hidden"),f()});G.addEventListener("click",()=>{$()});z.addEventListener("click",async()=>{try{let t=await Y();ee(t)}catch(t){console.error(t),alert("Failed to save. Check console for details.")}});})();
 </script>
 </body>
 </html>

@@ -1,7 +1,6 @@
 {
-   "name": "mvp-password-manager",
-   "version": "2.0.0",
-   "description": "Local password manager MVP (Updated)",
+   "name": "hashpass",
+   "version": "1.0.0",
    "scripts": {
      "build": "npm run build:css && npm run build:ts && node inline.js",
      "build:css": "npx tailwindcss -i ./src/style.css -o ./dist/tailwind.css",

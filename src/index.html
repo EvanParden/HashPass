@@ -2,81 +2,98 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MVP Password Manager</title>
+  <title>HashPass</title>
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col items-center p-6">
-  <h1 class="text-3xl font-bold mb-6">MVP Password Manager</h1>
+  <!-- Top Nav: includes "Help" link -->
+  <div class="w-full flex justify-between mb-6">
+    <h1 class="text-3xl font-bold">HashPass</h1>
+    <a
+      href="#instructions"
+      class="text-blue-600 underline self-center hover:text-blue-800"
+    >
+      Help
+    </a>
+  </div>
 
-  <!-- File load & green check row -->
-  <div class="flex items-center gap-3 mb-6">
-    <div>
+  <!-- File load & valid check row -->
+  <div class="flex flex-col items-center gap-3 mb-6">
+    <div class="flex items-center gap-3">
       <input
         id="jsonFileInput"
         type="file"
         accept=".json"
-        class="block file:mr-2 file:py-2 file:px-4 file:rounded file:border-0
+        class="file:mr-2 file:py-2 file:px-4 file:rounded file:border-0
                file:text-sm file:font-semibold
                file:bg-blue-50 file:text-blue-700
                hover:file:bg-blue-100
                border border-gray-300 rounded p-1"
       />
-    </div>
-    <!-- Green check icon is hidden by default, shown if format is valid -->
-    <svg
-      id="validIcon"
-      class="hidden w-6 h-6 text-green-500"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      viewBox="0 0 24 24"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    >
-      <path d="M5 13l4 4L19 7" />
-    </svg>
+      <!-- Green check icon hidden by default, shown if format is valid -->
+      <svg
+        id="validIcon"
+        class="hidden w-6 h-6 text-green-500"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M5 13l4 4L19 7" />
+      </svg>
 
-    <button
-      id="loadJsonBtn"
-      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-      Load JSON
-    </button>
+      <button
+        id="loadJsonBtn"
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        Load JSON
+      </button>
+    </div>
+
+    <!-- Display loaded metadata if any -->
+    <div id="metadataDisplay" class="text-sm text-gray-700 hidden">
+      <p><strong>Algorithm:</strong> <span id="algoLabel"></span></p>
+      <p><strong>Security Level:</strong> <span id="secLevelLabel"></span></p>
+    </div>
   </div>
 
   <!-- Create new storage button (opens a modal) -->
   <div class="mb-4">
     <button
       id="openCreateModalBtn"
-      class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+      class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+    >
       Create New Storage
     </button>
   </div>
 
   <!-- Password List Container -->
-  <div class="w-full max-w-xl bg-white rounded shadow p-4">
-    <!-- The "Add Entry" button at the top, triggers the Add Entry modal -->
+  <div class="w-full max-w-xl bg-white rounded shadow p-4 mb-6">
     <div class="mb-4 flex justify-between items-center">
       <h2 class="text-xl font-semibold">Stored Entries</h2>
+      <!-- "Add Entry" button at the top, triggers the Add Entry modal -->
       <button
         id="openAddEntryBtn"
-        class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm">
+        class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
+      >
         + Add Entry
       </button>
     </div>
 
-    <!-- Minimalistic list, no big table -->
+    <!-- Minimalistic list -->
     <div id="entriesContainer" class="space-y-3">
-      <!-- Dynamically populated cards or list rows -->
+      <!-- Dynamically populated -->
     </div>
   </div>
 
   <!-- Save & Download button -->
-  <div class="mt-6">
-    <button
-      id="downloadJsonBtn"
-      class="bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700">
-      Save & Download
-    </button>
-  </div>
+  <button
+    id="saveJsonBtn"
+    class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 mb-12"
+  >
+    Save & Download
+  </button>
 
   <!-- ===== Modals ===== -->
 
@@ -99,6 +116,28 @@
         placeholder="Leave blank for no encryption"
         class="border border-gray-300 rounded p-2 w-full mb-3"
       />
+
+      <!-- Encryption metadata -->
+      <label class="block mb-1 font-semibold">Algorithm:</label>
+      <select
+        id="algorithmSelect"
+        class="border border-gray-300 rounded p-2 w-full mb-3"
+      >
+        <option value="AES-GCM" selected>AES-GCM</option>
+        <option value="AES-CBC">AES-CBC</option>
+        <option value="AES-CTR">AES-CTR</option>
+        <option value="ChaCha20">ChaCha20</option>
+      </select>
+
+      <label class="block mb-1 font-semibold">Security Level:</label>
+      <select
+        id="securityLevelSelect"
+        class="border border-gray-300 rounded p-2 w-full mb-4"
+      >
+        <option value="256-bit" selected>256-bit</option>
+        <option value="192-bit">192-bit</option>
+        <option value="128-bit">128-bit</option>
+      </select>
 
       <button
         id="createStorageBtn"
@@ -162,7 +201,7 @@
     </div>
   </div>
 
-  <!-- 3) Detail/Notes Modal (optional) -->
+  <!-- 3) Detail Modal -->
   <div
     id="detailModal"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden"
@@ -179,6 +218,29 @@
       <p class="mt-2"><strong>Notes:</strong></p>
       <p id="detailNotes" class="whitespace-pre-wrap border rounded p-2 mt-1 bg-gray-50"></p>
     </div>
+  </div>
+
+  <!-- ===== Instructions Section ===== -->
+  <div id="instructions" class="w-full max-w-3xl mt-12 bg-white rounded shadow p-6">
+    <h2 class="text-2xl font-bold mb-3">How to Use HashPass</h2>
+    <ol class="list-decimal list-inside mb-4 text-gray-700">
+      <li class="mb-2"><strong>Load or Create Storage:</strong> Select an existing JSON file (if you have one) or create a new storage by clicking <em>Create New Storage</em>.</li>
+      <li class="mb-2"><strong>Set Optional Password:</strong> If you set a master password, your data is encrypted. Otherwise, it’s stored in plain text.</li>
+      <li class="mb-2"><strong>Add Entries:</strong> Click <em>+ Add Entry</em> to insert new credentials (website, username, password, etc.).</li>
+      <li class="mb-2"><strong>Reveal Password:</strong> Click on the masked password (“••••••••”) to show/hide it.</li>
+      <li class="mb-2"><strong>Save &amp; Download:</strong> When ready, click <em>Save &amp; Download</em> to export the current data to a JSON file.</li>
+    </ol>
+
+    <h3 class="text-xl font-bold mb-2">How It Works & Why It’s Secure</h3>
+    <p class="mb-4 text-gray-700">
+      HashPass uses the Web Crypto API to encrypt your data (if you provide a master password).
+      By default, it uses a strong PBKDF2 key derivation and AES-GCM encryption. The JSON file
+      that’s generated can only be decrypted with your chosen password. If no password is set,
+      the file remains unencrypted.
+    </p>
+    <p class="mb-4 text-gray-700">
+      Your data stays local: everything runs in your browser. No cloud or server involvement.
+    </p>
   </div>
 </body>
 </html>
