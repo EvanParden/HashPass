@@ -1,144 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <title>MVP Password Manager</title>
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col items-center p-6">
-
   <h1 class="text-3xl font-bold mb-6">MVP Password Manager</h1>
 
-  <!-- Master password input & file selection -->
-  <div class="mb-6 w-full max-w-lg space-y-3">
+  <!-- File load & green check row -->
+  <div class="flex items-center gap-3 mb-6">
     <div>
-      <label for="masterPassword" class="block mb-1 font-semibold">Master Password (optional):</label>
-      <input
-        id="masterPassword"
-        type="password"
-        placeholder="Enter a master password or leave blank"
-        class="border border-gray-300 rounded p-2 w-full"
-      />
-    </div>
-
-    <div>
-      <label class="block mb-1 font-semibold">Open Existing JSON File:</label>
       <input
         id="jsonFileInput"
         type="file"
         accept=".json"
-        class="border border-gray-300 rounded p-2 w-full"
+        class="block file:mr-2 file:py-2 file:px-4 file:rounded file:border-0
+               file:text-sm file:font-semibold
+               file:bg-blue-50 file:text-blue-700
+               hover:file:bg-blue-100
+               border border-gray-300 rounded p-1"
       />
     </div>
+    <!-- Green check icon is hidden by default, shown if format is valid -->
+    <svg
+      id="validIcon"
+      class="hidden w-6 h-6 text-green-500"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M5 13l4 4L19 7" />
+    </svg>
 
     <button
       id="loadJsonBtn"
-      class="bg-blue-600 text-white w-full p-2 rounded hover:bg-blue-700">
-      Load JSON File
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      Load JSON
     </button>
   </div>
 
-  <!-- Create new JSON storage file -->
-  <div class="mb-6 w-full max-w-lg space-y-2">
-    <div class="font-semibold">Or create a new storage file:</div>
+  <!-- Create new storage button (opens a modal) -->
+  <div class="mb-4">
     <button
-      id="createJsonBtn"
-      class="bg-green-600 text-white w-full p-2 rounded hover:bg-green-700">
+      id="openCreateModalBtn"
+      class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
       Create New Storage
     </button>
   </div>
 
-  <!-- Password entries list -->
-  <div class="w-full max-w-2xl mb-6">
-    <h2 class="text-2xl font-bold mb-3">Stored Entries</h2>
-    <div class="overflow-x-auto rounded border border-gray-300 bg-white">
-      <table class="min-w-full text-left">
-        <thead>
-          <tr class="bg-gray-100 border-b border-gray-300">
-            <th class="p-3">Website</th>
-            <th class="p-3">Username</th>
-            <th class="p-3">Password</th>
-          </tr>
-        </thead>
-        <tbody id="entriesTableBody" class="divide-y divide-gray-200">
-          <!-- Dynamically populated -->
-        </tbody>
-      </table>
+  <!-- Password List Container -->
+  <div class="w-full max-w-xl bg-white rounded shadow p-4">
+    <!-- The "Add Entry" button at the top, triggers the Add Entry modal -->
+    <div class="mb-4 flex justify-between items-center">
+      <h2 class="text-xl font-semibold">Stored Entries</h2>
+      <button
+        id="openAddEntryBtn"
+        class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm">
+        + Add Entry
+      </button>
+    </div>
+
+    <!-- Minimalistic list, no big table -->
+    <div id="entriesContainer" class="space-y-3">
+      <!-- Dynamically populated cards or list rows -->
     </div>
   </div>
 
-  <!-- Add new entry form -->
-  <div class="mb-6 w-full max-w-lg bg-white rounded shadow p-4">
-    <h2 class="text-xl font-bold mb-3">Add New Entry</h2>
-    <form id="addEntryForm" class="flex flex-col space-y-3">
-      <input
-        type="text"
-        id="websiteInput"
-        placeholder="Website"
-        class="border border-gray-300 p-2 rounded w-full"
-      />
-      <input
-        type="text"
-        id="usernameInput"
-        placeholder="Username"
-        class="border border-gray-300 p-2 rounded w-full"
-      />
-      <input
-        type="text"
-        id="passwordInput"
-        placeholder="Password"
-        class="border border-gray-300 p-2 rounded w-full"
-      />
-      <textarea
-        id="noteInput"
-        placeholder="Notes"
-        class="border border-gray-300 p-2 rounded w-full"
-      ></textarea>
-
-      <button
-        type="submit"
-        class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 w-full">
-        Add Entry
-      </button>
-    </form>
-  </div>
-
-  <!-- Download changes button -->
-  <div class="mb-6">
+  <!-- Save & Download button -->
+  <div class="mt-6">
     <button
       id="downloadJsonBtn"
       class="bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700">
-      Save & Download Current Storage
+      Save & Download
     </button>
   </div>
 
-  <!-- Popup Modal (hidden by default) -->
+  <!-- ===== Modals ===== -->
+
+  <!-- 1) Create Storage Modal -->
   <div
-    id="entryModal"
+    id="createStorageModal"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden"
   >
-    <div class="bg-white rounded shadow-lg w-96 max-w-full p-6 relative">
+    <div class="bg-white w-80 p-4 rounded shadow relative">
       <button
-        id="closeModalBtn"
+        id="closeCreateModalBtn"
         class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+      >✕</button>
+      <h3 class="text-xl font-bold mb-3">Create New Storage</h3>
+
+      <label class="block mb-1 font-semibold">Master Password (optional):</label>
+      <input
+        id="createMasterPasswordInput"
+        type="password"
+        placeholder="Leave blank for no encryption"
+        class="border border-gray-300 rounded p-2 w-full mb-3"
+      />
+
+      <button
+        id="createStorageBtn"
+        class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
       >
-        ✕
+        Create
       </button>
-      <h3 class="text-xl font-bold mb-4">Entry Details</h3>
-      <p><strong>Website:</strong> <span id="modalWebsite" class="text-blue-600"></span></p>
-      <p class="mt-2"><strong>Username:</strong>
-        <span id="modalUsername" class="mr-2"></span>
-        <button id="copyUsernameBtn" class="inline-flex items-center bg-gray-200 text-sm px-2 py-1 rounded hover:bg-gray-300">
-          Copy
-        </button>
-      </p>
-      <p class="mt-2"><strong>Password:</strong>
-        <span id="modalPassword" class="mr-2"></span>
-        <button id="copyPasswordBtn" class="inline-flex items-center bg-gray-200 text-sm px-2 py-1 rounded hover:bg-gray-300">
-          Copy
-        </button>
-      </p>
+    </div>
+  </div>
+
+  <!-- 2) Add Entry Modal -->
+  <div
+    id="addEntryModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden"
+  >
+    <div class="bg-white w-80 p-4 rounded shadow relative">
+      <button
+        id="closeAddEntryModalBtn"
+        class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+      >✕</button>
+      <h3 class="text-xl font-bold mb-3">Add New Entry</h3>
+
+      <div class="mb-3">
+        <input
+          type="text"
+          id="websiteInput"
+          placeholder="Website"
+          class="border border-gray-300 p-2 rounded w-full"
+        />
+      </div>
+      <div class="mb-3">
+        <input
+          type="text"
+          id="usernameInput"
+          placeholder="Username"
+          class="border border-gray-300 p-2 rounded w-full"
+        />
+      </div>
+      <div class="mb-3">
+        <input
+          type="text"
+          id="passwordInput"
+          placeholder="Password"
+          class="border border-gray-300 p-2 rounded w-full"
+        />
+      </div>
+      <div class="mb-3">
+        <textarea
+          id="noteInput"
+          placeholder="Notes"
+          class="border border-gray-300 p-2 rounded w-full"
+        ></textarea>
+      </div>
+
+      <button
+        id="submitNewEntryBtn"
+        class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+      >
+        Save Entry
+      </button>
+    </div>
+  </div>
+
+  <!-- 3) Detail/Notes Modal (optional) -->
+  <div
+    id="detailModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden"
+  >
+    <div class="bg-white w-80 p-4 rounded shadow relative">
+      <button
+        id="closeDetailModalBtn"
+        class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+      >✕</button>
+      <h3 class="text-xl font-bold mb-3">Details</h3>
+      <p><strong>Website:</strong> <span id="detailWebsite" class="text-blue-600"></span></p>
+      <p class="mt-2"><strong>Username:</strong> <span id="detailUsername"></span></p>
+      <p class="mt-2"><strong>Password:</strong> <span id="detailPassword"></span></p>
       <p class="mt-2"><strong>Notes:</strong></p>
-      <p id="modalNotes" class="whitespace-pre-wrap border rounded p-2 mt-1 bg-gray-50"></p>
+      <p id="detailNotes" class="whitespace-pre-wrap border rounded p-2 mt-1 bg-gray-50"></p>
     </div>
   </div>
 </body>
